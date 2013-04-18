@@ -121,7 +121,7 @@ void update_watch(PblTm* t) {
   //Let's get the new time and date
   english_time_3lines(t->tm_hour, t->tm_min, new_time.hour, new_time.min1, new_time.min2);
   string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %B", t);
-  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M | Week %W", t);
+  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M:%S | Week %W", t);
   
   //Let's update the top and bottom bar anyway - **to optimize later to only update top bar every new day.
   text_layer_set_text(&topbarLayer, str_topbar);
@@ -145,7 +145,7 @@ void update_watch(PblTm* t) {
 void init_watch(PblTm* t) {
   english_time_3lines(t->tm_hour, t->tm_min, new_time.hour, new_time.min1, new_time.min2);
   string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %B", t);
-  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M | Week %W", t);
+  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M:%S | Week %W", t);
   
   text_layer_set_text(&topbarLayer, str_topbar);
   text_layer_set_text(&bottombarLayer, str_bottombar);
@@ -245,7 +245,7 @@ void handle_init_app(AppContextRef app_ctx) {
 }
 
 // Called once per minute
-void handle_minute_tick(AppContextRef ctx, PebbleTickEvent *t) {
+void handle_second_tick(AppContextRef ctx, PebbleTickEvent *t) {
   (void)ctx;
 
   if (busy_animating_out || busy_animating_in) return;
@@ -262,8 +262,8 @@ void pbl_main(void *params) {
 
     // Handle time updates
     .tick_info = {
-      .tick_handler = &handle_minute_tick,
-      .tick_units = MINUTE_UNIT
+      .tick_handler = &handle_second_tick,
+      .tick_units = SECOND_UNIT
     }
 
   };
