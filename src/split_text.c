@@ -175,13 +175,13 @@ void handle_init_app(AppContextRef app_ctx) {
   text_layer_set_text_color(&line1.layer[0], GColorBlack);
   text_layer_set_background_color(&line1.layer[0], GColorWhite);
   text_layer_set_font(&line1.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
-  text_layer_set_text_alignment(&line1.layer[0], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line1.layer[0], GTextAlignmentRight);
   
   text_layer_init(&line1.layer[1], GRect(144, hour_y, 144, 48));
   text_layer_set_text_color(&line1.layer[1], GColorBlack);
   text_layer_set_background_color(&line1.layer[1], GColorWhite);
   text_layer_set_font(&line1.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
-  text_layer_set_text_alignment(&line1.layer[1], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line1.layer[1], GTextAlignmentRight);
 
   text_layer_init(&line1_bg, GRect(144, hour_y, 144, 48));
   text_layer_set_background_color(&line1_bg, GColorWhite);
@@ -191,26 +191,26 @@ void handle_init_app(AppContextRef app_ctx) {
   text_layer_set_text_color(&line2.layer[0], GColorWhite);
   text_layer_set_background_color(&line2.layer[0], GColorClear);
   text_layer_set_font(&line2.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line2.layer[0], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line2.layer[0], GTextAlignmentRight);
 
   text_layer_init(&line2.layer[1], GRect(144, min1_y, 144, 50));
   text_layer_set_text_color(&line2.layer[1], GColorWhite);
   text_layer_set_background_color(&line2.layer[1], GColorClear);
   text_layer_set_font(&line2.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line2.layer[1], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line2.layer[1], GTextAlignmentRight);
   
   // min2
   text_layer_init(&line3.layer[0], GRect(0, min2_y, 144, 50));
   text_layer_set_text_color(&line3.layer[0], GColorWhite);
   text_layer_set_background_color(&line3.layer[0], GColorClear);
   text_layer_set_font(&line3.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line3.layer[0], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line3.layer[0], GTextAlignmentRight);
 
   text_layer_init(&line3.layer[1], GRect(144, min2_y, 144, 50));
   text_layer_set_text_color(&line3.layer[1], GColorWhite);
   text_layer_set_background_color(&line3.layer[1], GColorClear);
   text_layer_set_font(&line3.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line3.layer[1], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line3.layer[1], GTextAlignmentRight);
 
   // date
   text_layer_init(&topbarLayer, GRect(0, 0, 144, 18));
