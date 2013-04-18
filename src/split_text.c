@@ -18,7 +18,7 @@ PBL_APP_INFO(MY_UUID,
              2, 0, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
-#define ANIMATION_DURATION 400
+#define ANIMATION_DURATION 800
 #define LINE_BUFFER_SIZE 50
 #define WINDOW_NAME "split_text"
 
@@ -37,6 +37,7 @@ typedef struct {
 
 TextLayer topbarLayer;
 TextLayer bottombarLayer;
+TextLayer line1_bg;
 TextLine line1;
 TextLine line2;
 TextLine line3;
@@ -54,6 +55,8 @@ const int min2_y = 98;
 
 void animationInStoppedHandler(struct Animation *animation, bool finished, void *context) {
   busy_animating_in = false;
+  //reset cur_time
+  cur_time = new_time;
 }
 
 void animationOutStoppedHandler(struct Animation *animation, bool finished, void *context) {
@@ -80,38 +83,38 @@ void updateLayer(TextLine *animating_line, int line) {
   in_rect.origin.x -= 144;
   out_rect.origin.x -= 144;
 
+ //animate out current layer
+  busy_animating_out = true;
+  property_animation_init_layer_frame(&animating_line->layer_animation[1], &inside->layer, NULL, &out_rect);
+  animation_set_duration(&animating_line->layer_animation[1].animation, ANIMATION_DURATION);
+  animation_set_curve(&animating_line->layer_animation[1].animation, AnimationCurveEaseOut);
+  animation_set_handlers(&animating_line->layer_animation[1].animation, (AnimationHandlers) {
+    .stopped = (AnimationStoppedHandler)animationOutStoppedHandler
+  }, (void *)inside);
+  animation_schedule(&animating_line->layer_animation[1].animation);
+
   if (line==1){
-    strcpy(cur_time.hour, new_time.hour);
-    text_layer_set_text(outside, cur_time.hour);
+    text_layer_set_text(outside, new_time.hour);
+    text_layer_set_text(inside, cur_time.hour);
   }
   if (line==2){
-    strcpy(cur_time.min1, new_time.min1);
-    text_layer_set_text(outside, cur_time.min1);
+    text_layer_set_text(outside, new_time.min1);
+    text_layer_set_text(inside, cur_time.min1);
   }
   if (line==3){
-    strcpy(cur_time.min2, new_time.min2); 
-    text_layer_set_text(outside, cur_time.min2);
+    text_layer_set_text(outside, new_time.min2);
+    text_layer_set_text(inside, cur_time.min2);
   }
   
   //animate in new layer
   busy_animating_in = true;
   property_animation_init_layer_frame(&animating_line->layer_animation[0], &outside->layer, NULL, &in_rect);
   animation_set_duration(&animating_line->layer_animation[0].animation, ANIMATION_DURATION);
-  animation_set_curve(&animating_line->layer_animation[0].animation, AnimationCurveEaseIn);
+  animation_set_curve(&animating_line->layer_animation[0].animation, AnimationCurveEaseOut);
   animation_set_handlers(&animating_line->layer_animation[0].animation, (AnimationHandlers) {
     .stopped = (AnimationStoppedHandler)animationInStoppedHandler
   }, (void *)outside);
   animation_schedule(&animating_line->layer_animation[0].animation);
-
-  //animate out current layer
-  busy_animating_out = true;
-  property_animation_init_layer_frame(&animating_line->layer_animation[1], &inside->layer, NULL, &out_rect);
-  animation_set_duration(&animating_line->layer_animation[1].animation, ANIMATION_DURATION);
-  animation_set_curve(&animating_line->layer_animation[1].animation, AnimationCurveEaseIn);
-  animation_set_handlers(&animating_line->layer_animation[1].animation, (AnimationHandlers) {
-    .stopped = (AnimationStoppedHandler)animationOutStoppedHandler
-  }, (void *)inside);
-  animation_schedule(&animating_line->layer_animation[1].animation);
 }
 
 void update_watch(PblTm* t) {
@@ -147,12 +150,13 @@ void init_watch(PblTm* t) {
   text_layer_set_text(&topbarLayer, str_topbar);
   text_layer_set_text(&bottombarLayer, str_bottombar);
 
-  text_layer_set_text(&line1.layer[0], new_time.hour);
-  text_layer_set_text(&line2.layer[0], new_time.min1);
-  text_layer_set_text(&line3.layer[0], new_time.min2);
   strcpy(cur_time.hour, new_time.hour);
   strcpy(cur_time.min1, new_time.min1);
   strcpy(cur_time.min2, new_time.min2);
+
+  text_layer_set_text(&line1.layer[0], cur_time.hour);
+  text_layer_set_text(&line2.layer[0], cur_time.min1);
+  text_layer_set_text(&line3.layer[0], cur_time.min2);
 }
 
 
@@ -171,39 +175,42 @@ void handle_init_app(AppContextRef app_ctx) {
   text_layer_set_text_color(&line1.layer[0], GColorBlack);
   text_layer_set_background_color(&line1.layer[0], GColorWhite);
   text_layer_set_font(&line1.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
-  text_layer_set_text_alignment(&line1.layer[0], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line1.layer[0], GTextAlignmentRight);
   
   text_layer_init(&line1.layer[1], GRect(144, hour_y, 144, 48));
-  text_layer_set_text_color(&line1.layer[1], GColorWhite);
-  text_layer_set_background_color(&line1.layer[1], GColorClear);
+  text_layer_set_text_color(&line1.layer[1], GColorBlack);
+  text_layer_set_background_color(&line1.layer[1], GColorWhite);
   text_layer_set_font(&line1.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
-  text_layer_set_text_alignment(&line1.layer[1], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line1.layer[1], GTextAlignmentRight);
+
+  text_layer_init(&line1_bg, GRect(144, hour_y, 144, 48));
+  text_layer_set_background_color(&line1_bg, GColorWhite);
 
   // min1
   text_layer_init(&line2.layer[0], GRect(0, min1_y, 144, 50));
   text_layer_set_text_color(&line2.layer[0], GColorWhite);
   text_layer_set_background_color(&line2.layer[0], GColorClear);
   text_layer_set_font(&line2.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line2.layer[0], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line2.layer[0], GTextAlignmentRight);
 
   text_layer_init(&line2.layer[1], GRect(144, min1_y, 144, 50));
   text_layer_set_text_color(&line2.layer[1], GColorWhite);
   text_layer_set_background_color(&line2.layer[1], GColorClear);
   text_layer_set_font(&line2.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line2.layer[1], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line2.layer[1], GTextAlignmentRight);
   
   // min2
   text_layer_init(&line3.layer[0], GRect(0, min2_y, 144, 50));
   text_layer_set_text_color(&line3.layer[0], GColorWhite);
   text_layer_set_background_color(&line3.layer[0], GColorClear);
   text_layer_set_font(&line3.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line3.layer[0], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line3.layer[0], GTextAlignmentRight);
 
   text_layer_init(&line3.layer[1], GRect(144, min2_y, 144, 50));
   text_layer_set_text_color(&line3.layer[1], GColorWhite);
   text_layer_set_background_color(&line3.layer[1], GColorClear);
   text_layer_set_font(&line3.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
-  text_layer_set_text_alignment(&line3.layer[1], GTextAlignmentLeft);
+  text_layer_set_text_alignment(&line3.layer[1], GTextAlignmentRight);
 
   // date
   text_layer_init(&topbarLayer, GRect(0, 0, 144, 18));
@@ -226,6 +233,7 @@ void handle_init_app(AppContextRef app_ctx) {
   get_time(&t);
   init_watch(&t);
 
+  layer_add_child(&window.layer, &line1_bg.layer);
   layer_add_child(&window.layer, &line2.layer[0].layer);
   layer_add_child(&window.layer, &line2.layer[1].layer);
   layer_add_child(&window.layer, &line3.layer[0].layer);
