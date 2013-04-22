@@ -1,6 +1,9 @@
 /*
   SplitText v2
   Inspired by TextWatch
+  Special build for mspencer 
+    - Larger top bar
+    - Day of the year added at bottom bar
   With Date, 24H display and Week #
   Hour and Min has inversed background
   Pluses on new hours
@@ -12,7 +15,7 @@
 #include "pebble_fonts.h"
 #include "english_time.h"
 
-#define MY_UUID { 0xFF, 0xD6, 0x03, 0x73, 0x4F, 0xA0, 0x4D, 0x2A, 0x91, 0xFC, 0xF1, 0x15, 0x95, 0x95, 0x90, 0x71 }
+#define MY_UUID { 0x8B, 0x04, 0x8F, 0xB3, 0xAA, 0xF5, 0x45, 0x0D, 0xB3, 0x24, 0xA3, 0xF3, 0xF7, 0x66, 0x53, 0xC2 }
 PBL_APP_INFO(MY_UUID,
              "SplitText v2", "atpeaz.com",
              2, 0, /* App version */
@@ -49,9 +52,9 @@ static char str_topbar[LINE_BUFFER_SIZE];
 static char str_bottombar[LINE_BUFFER_SIZE];
 static bool busy_animating_in = false;
 static bool busy_animating_out = false;
-const int hour_y = 18;
-const int min1_y = 58;
-const int min2_y = 98;
+const int hour_y = 20;
+const int min1_y = 60;
+const int min2_y = 100;
 
 void animationInStoppedHandler(struct Animation *animation, bool finished, void *context) {
   busy_animating_in = false;
@@ -120,8 +123,8 @@ void updateLayer(TextLine *animating_line, int line) {
 void update_watch(PblTm* t) {
   //Let's get the new time and date
   english_time_3lines(t->tm_hour, t->tm_min, new_time.hour, new_time.min1, new_time.min2);
-  string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %B", t);
-  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M | Week %W", t);
+  string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %b", t);
+  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M | %G-%j", t);
   
   //Let's update the top and bottom bar anyway - **to optimize later to only update top bar every new day.
   text_layer_set_text(&topbarLayer, str_topbar);
@@ -144,8 +147,8 @@ void update_watch(PblTm* t) {
 
 void init_watch(PblTm* t) {
   english_time_3lines(t->tm_hour, t->tm_min, new_time.hour, new_time.min1, new_time.min2);
-  string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %B", t);
-  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M | Week %W", t);
+  string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %b", t);
+  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M | %G-%j", t);
   
   text_layer_set_text(&topbarLayer, str_topbar);
   text_layer_set_text(&bottombarLayer, str_bottombar);
@@ -213,10 +216,10 @@ void handle_init_app(AppContextRef app_ctx) {
   text_layer_set_text_alignment(&line3.layer[1], GTextAlignmentRight);
 
   // date
-  text_layer_init(&topbarLayer, GRect(0, 0, 144, 18));
+  text_layer_init(&topbarLayer, GRect(0, 0, 144, 22));
   text_layer_set_text_color(&topbarLayer, GColorWhite);
   text_layer_set_background_color(&topbarLayer, GColorBlack);
-  text_layer_set_font(&topbarLayer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+  text_layer_set_font(&topbarLayer, fonts_get_system_font(FONT_KEY_GOTHIC_18));
   text_layer_set_text_alignment(&topbarLayer, GTextAlignmentCenter);
 
   // day24week
