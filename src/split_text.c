@@ -15,7 +15,7 @@
 #define MY_UUID { 0xFF, 0xD6, 0x03, 0x73, 0x4F, 0xA0, 0x4D, 0x2A, 0x91, 0xFC, 0xF1, 0x15, 0x95, 0x95, 0x90, 0x71 }
 PBL_APP_INFO(MY_UUID,
              "SplitText v2", "atpeaz.com",
-             2, 0, /* App version */
+             2, 1, /* App version */
              RESOURCE_ID_IMAGE_MENU_ICON,
              APP_INFO_WATCH_FACE);
 #define ANIMATION_DURATION 800
@@ -52,6 +52,7 @@ static bool busy_animating_out = false;
 const int hour_y = 18;
 const int min1_y = 58;
 const int min2_y = 98;
+const bool pulse = false;
 
 void animationInStoppedHandler(struct Animation *animation, bool finished, void *context) {
   busy_animating_in = false;
@@ -121,7 +122,7 @@ void update_watch(PblTm* t) {
   //Let's get the new time and date
   english_time_3lines(t->tm_hour, t->tm_min, new_time.hour, new_time.min1, new_time.min2);
   string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %B", t);
-  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M:%S | Week %W", t);
+  string_format_time(str_bottombar, sizeof(str_bottombar), "%H%M:%S | Week %V", t);
   
   //Let's update the top and bottom bar anyway - **to optimize later to only update top bar every new day.
   text_layer_set_text(&topbarLayer, str_topbar);
@@ -129,7 +130,9 @@ void update_watch(PblTm* t) {
 
   //update hour only if changed
   if(strcmp(new_time.hour,cur_time.hour) != 0){
-    vibes_short_pulse();
+    if(pulse){
+      vibes_short_pulse();
+    }
     updateLayer(&line1, 1);
   }
   //update min1 only if changed
@@ -145,7 +148,7 @@ void update_watch(PblTm* t) {
 void init_watch(PblTm* t) {
   english_time_3lines(t->tm_hour, t->tm_min, new_time.hour, new_time.min1, new_time.min2);
   string_format_time(str_topbar, sizeof(str_topbar), "%A | %e %B", t);
-  string_format_time(str_bottombar, sizeof(str_bottombar), " %H%M:%S | Week %W", t);
+  string_format_time(str_bottombar, sizeof(str_bottombar), "%H%M:%S | Week %V", t);
   
   text_layer_set_text(&topbarLayer, str_topbar);
   text_layer_set_text(&bottombarLayer, str_bottombar);
@@ -174,13 +177,13 @@ void handle_init_app(AppContextRef app_ctx) {
   text_layer_init(&line1.layer[0], GRect(0, hour_y, 144, 48));
   text_layer_set_text_color(&line1.layer[0], GColorBlack);
   text_layer_set_background_color(&line1.layer[0], GColorWhite);
-  text_layer_set_font(&line1.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
+  text_layer_set_font(&line1.layer[0], fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_text_alignment(&line1.layer[0], GTextAlignmentRight);
   
   text_layer_init(&line1.layer[1], GRect(144, hour_y, 144, 48));
   text_layer_set_text_color(&line1.layer[1], GColorBlack);
   text_layer_set_background_color(&line1.layer[1], GColorWhite);
-  text_layer_set_font(&line1.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_BOLD));
+  text_layer_set_font(&line1.layer[1], fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD));
   text_layer_set_text_alignment(&line1.layer[1], GTextAlignmentRight);
 
   text_layer_init(&line1_bg, GRect(144, hour_y, 144, 48));
@@ -190,26 +193,26 @@ void handle_init_app(AppContextRef app_ctx) {
   text_layer_init(&line2.layer[0], GRect(0, min1_y, 144, 50));
   text_layer_set_text_color(&line2.layer[0], GColorWhite);
   text_layer_set_background_color(&line2.layer[0], GColorClear);
-  text_layer_set_font(&line2.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
+  text_layer_set_font(&line2.layer[0], fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
   text_layer_set_text_alignment(&line2.layer[0], GTextAlignmentRight);
 
   text_layer_init(&line2.layer[1], GRect(144, min1_y, 144, 50));
   text_layer_set_text_color(&line2.layer[1], GColorWhite);
   text_layer_set_background_color(&line2.layer[1], GColorClear);
-  text_layer_set_font(&line2.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
+  text_layer_set_font(&line2.layer[1], fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
   text_layer_set_text_alignment(&line2.layer[1], GTextAlignmentRight);
   
   // min2
   text_layer_init(&line3.layer[0], GRect(0, min2_y, 144, 50));
   text_layer_set_text_color(&line3.layer[0], GColorWhite);
   text_layer_set_background_color(&line3.layer[0], GColorClear);
-  text_layer_set_font(&line3.layer[0], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
+  text_layer_set_font(&line3.layer[0], fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
   text_layer_set_text_alignment(&line3.layer[0], GTextAlignmentRight);
 
   text_layer_init(&line3.layer[1], GRect(144, min2_y, 144, 50));
   text_layer_set_text_color(&line3.layer[1], GColorWhite);
   text_layer_set_background_color(&line3.layer[1], GColorClear);
-  text_layer_set_font(&line3.layer[1], fonts_get_system_font(FONT_KEY_GOTHAM_42_LIGHT));
+  text_layer_set_font(&line3.layer[1], fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT));
   text_layer_set_text_alignment(&line3.layer[1], GTextAlignmentRight);
 
   // date
